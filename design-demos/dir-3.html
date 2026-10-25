@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Direction 3: Cyber-Manhwa HUD — Aniwatch</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Inter"', 'sans-serif'],
+            mono: ['"Fira Code"', 'monospace'],
+          },
+          colors: {
+            slateBg: '#090d16',
+            panel: '#0e1524',
+            panelHover: '#141d30',
+            cyanAccent: '#06b6d4',
+            emeraldAccent: '#10b981',
+            hudBorder: '#1e293b',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #090d16; color: #e2e8f0; }
+    .scanline {
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      background-size: 100% 3px, 6px 100%;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased selection:bg-cyan-500 selection:text-black pb-20">
+
+  <!-- DIRECTION BANNER -->
+  <div class="bg-cyan-950/40 border-b border-cyan-500/20 px-4 py-2 text-xs text-cyan-300 flex items-center justify-between font-mono">
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500 text-black uppercase">DIRECTION 3</span>
+      <span class="font-bold text-slate-200">Cyber-Manhwa / Neo-Tokyo HUD</span>
+      <span class="text-cyan-400/60 hidden sm:inline">• Hunter Status Cockpit • Electric Cyan/Emerald • Monospace Telemetry • Data Dense</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <button onclick="toggleView('catalog')" id="btn-catalog" class="px-2.5 py-1 rounded bg-cyan-500 text-black font-bold hover:bg-cyan-400 transition">View 1: Catalog</button>
+      <button onclick="toggleView('reader')" id="btn-reader" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 font-bold hover:bg-slate-700 transition">View 2: Reader Demo</button>
+    </div>
+  </div>
+
+  <!-- HUD NAVIGATION HEADER -->
+  <header class="border-b border-hudBorder bg-panel/90 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4 font-mono text-xs">
+
+      <!-- Brand & Status -->
+      <div class="flex items-center gap-6">
+        <a href="#" class="flex items-center gap-2 font-bold tracking-wider text-white">
+          <div class="w-3 h-3 bg-cyanAccent animate-pulse rounded-sm"></div>
+          <span class="text-base text-cyanAccent">ANIWATCH</span><span class="text-slate-500">.SYS</span>
+        </a>
+        <div class="hidden md:flex items-center gap-4 text-slate-400">
+          <span class="text-emeraldAccent">[NODE: ONLINE]</span>
+          <span>[LATENCY: 12ms]</span>
+          <span>[API: MANGADEX_V5]</span>
+        </div>
+      </div>
+
+      <!-- Quick Nav Buttons -->
+      <div class="flex items-center gap-2">
+        <button class="px-3 py-1.5 rounded bg-panelHover border border-hudBorder text-slate-200 hover:border-cyanAccent transition flex items-center gap-1.5">
+          <span class="text-cyanAccent font-bold">/</span> CATALOG
+        </button>
+        <button class="px-3 py-1.5 rounded bg-panelHover border border-hudBorder text-slate-200 hover:border-cyanAccent transition flex items-center gap-1.5">
+          <span class="text-emeraldAccent font-bold">#</span> SHELF (14)
+        </button>
+        <button class="px-3 py-1.5 rounded bg-cyanAccent text-black font-bold hover:bg-cyan-400 transition">
+          LOGIN
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- VIEW 1: CATALOG / MANGA HUD -->
+  <div id="view-catalog">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+
+      <!-- HUNTER COCKPIT PROFILE -->
+      <div class="border border-hudBorder bg-panel rounded-xl p-6 mb-8 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-96 h-96 bg-cyanAccent/5 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+          <!-- Poster with HUD Corner Brackets -->
+          <div class="lg:col-span-3">
+            <div class="relative p-1 border border-cyanAccent/40 bg-slateBg rounded-lg">
+              <div class="absolute -top-1 -left-1 w-2.5 h-2.5 border-t-2 border-l-2 border-cyanAccent"></div>
+              <div class="absolute -top-1 -right-1 w-2.5 h-2.5 border-t-2 border-r-2 border-cyanAccent"></div>
+              <div class="absolute -bottom-1 -left-1 w-2.5 h-2.5 border-b-2 border-l-2 border-cyanAccent"></div>
+              <div class="absolute -bottom-1 -right-1 w-2.5 h-2.5 border-b-2 border-r-2 border-cyanAccent"></div>
+
+              <div class="aspect-[2/3] w-full rounded overflow-hidden relative">
+                <img src="https://images.unsplash.com/photo-1563089145-599997674d42?w=600&auto=format&fit=crop&q=80"
+                  alt="Dandadan" class="w-full h-full object-cover">
+                <div class="absolute bottom-2 left-2 bg-black/80 px-2 py-0.5 rounded text-[10px] font-mono text-emeraldAccent border border-emeraldAccent/40">
+                  RANK: S-CLASS
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metadata & Telemetry -->
+          <div class="lg:col-span-9 font-mono">
+            <div class="flex flex-wrap items-center gap-2 text-xs text-slate-400 mb-2">
+              <span class="text-cyanAccent">[ID: a8b21c-dandadan]</span>
+              <span>•</span>
+              <span class="text-emeraldAccent">[STATUS: ONGOING]</span>
+              <span>•</span>
+              <span>[AUTHOR: Yukinobu Tatsu]</span>
+            </div>
+
+            <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tight mb-2 font-sans">
+              DANDADAN <span class="text-cyanAccent font-mono text-2xl font-normal">[ダンダダン]</span>
+            </h1>
+
+            <p class="font-sans text-sm text-slate-300 leading-relaxed max-w-3xl mb-6">
+              Momo Ayase, a high school girl who believes in ghosts but denies aliens, and Ken Takakura, an occult fanatic who believes in aliens but denies ghosts, make a bet to prove each other wrong. Their wager unleashes a reality-shattering clash of yokai, extraterrestrials, and occult warfare.
+            </p>
+
+            <!-- MULTI-LANGUAGE TELEMETRY MATRIX -->
+            <div class="border border-hudBorder bg-slateBg rounded-lg p-4 mb-6">
+              <div class="flex justify-between items-center mb-3 text-xs">
+                <span class="text-cyanAccent font-bold">[LANG_AVAILABILITY_MATRIX]</span>
+                <span class="text-slate-500">AGGREGATE VERIFIED // 2026-10-25</span>
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                <button class="p-2 rounded bg-cyanAccent/10 border border-cyanAccent text-cyanAccent flex justify-between items-center font-bold">
+                  <span>> EN / ENGLISH</span>
+                  <span class="text-white bg-cyan-950 px-1.5 py-0.2 rounded">172 CH</span>
+                </button>
+                <button class="p-2 rounded bg-panel border border-hudBorder hover:border-slate-500 text-slate-300 flex justify-between items-center">
+                  <span>> ID / INDONESIAN</span>
+                  <span class="text-slate-400">168 CH</span>
+                </button>
+                <button class="p-2 rounded bg-panel border border-hudBorder hover:border-slate-500 text-slate-300 flex justify-between items-center">
+                  <span>> JA / JAPANESE</span>
+                  <span class="text-slate-400">172 CH</span>
+                </button>
+                <button class="p-2 rounded bg-panel border border-hudBorder hover:border-slate-500 text-slate-300 flex justify-between items-center">
+                  <span>> ES / SPANISH</span>
+                  <span class="text-slate-400">140 CH</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="flex flex-wrap items-center gap-3">
+              <button onclick="toggleView('reader')" class="px-6 py-2.5 rounded bg-cyanAccent text-black font-bold text-xs hover:bg-cyan-400 hud-glow transition flex items-center gap-2">
+                <span>▶</span> INITIALIZE READER (CH. 172)
+              </button>
+              <button class="px-4 py-2.5 rounded bg-panel border border-hudBorder text-slate-300 font-bold text-xs hover:border-emeraldAccent transition">
+                [+] TRACK IN SHELF
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- CHAPTER HUD TABLE -->
+      <div class="border border-hudBorder bg-panel rounded-xl overflow-hidden font-mono text-xs">
+        <div class="bg-panelHover px-4 py-3 border-b border-hudBorder flex justify-between items-center">
+          <span class="font-bold text-slate-200">FEED // CHAPTER STREAM [ENGLISH]</span>
+          <span class="text-slate-500">SORT: DESCENDING (AUTO-DEDUP ACTIVE)</span>
+        </div>
+
+        <div class="divide-y divide-hudBorder">
+
+          <!-- Chapter Row 172 -->
+          <div onclick="toggleView('reader')" class="cursor-pointer p-4 hover:bg-slateBg flex items-center justify-between transition">
+            <div class="flex items-center gap-4">
+              <span class="text-cyanAccent font-bold text-sm w-12">[172]</span>
+              <div>
+                <div class="font-sans font-bold text-slate-200 text-sm">Turbo Granny Returns to the Shrine</div>
+                <div class="text-[11px] text-slate-500 mt-0.5">GROUP: MANGA-PLUS // DATE: 2026-10-20 // 19 PAGES</div>
+              </div>
+            </div>
+            <span class="px-3 py-1 rounded bg-cyanAccent/10 border border-cyanAccent/40 text-cyanAccent text-[11px] font-bold">
+              ENGAGE →
+            </span>
+          </div>
+
+          <!-- Chapter Row 171 -->
+          <div onclick="toggleView('reader')" class="cursor-pointer p-4 hover:bg-slateBg flex items-center justify-between transition">
+            <div class="flex items-center gap-4">
+              <span class="text-cyanAccent font-bold text-sm w-12">[171]</span>
+              <div>
+                <div class="font-sans font-bold text-slate-200 text-sm">Okarun's Spatial Warp</div>
+                <div class="text-[11px] text-slate-500 mt-0.5">GROUP: MANGA-PLUS // DATE: 2026-10-13 // 22 PAGES</div>
+              </div>
+            </div>
+            <span class="px-3 py-1 rounded bg-slate-800 text-slate-400 text-[11px]">
+              ENGAGE →
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- VIEW 2: READER HUD DEMO (WITH TELEMETRY HUD) -->
+  <div id="view-reader" class="hidden font-mono">
+    <!-- Top Cockpit Control HUD -->
+    <div class="sticky top-14 z-30 bg-slateBg/95 backdrop-blur border-b border-hudBorder px-4 py-2.5 flex items-center justify-between text-xs">
+      <div class="flex items-center gap-3">
+        <button onclick="toggleView('catalog')" class="text-cyanAccent hover:underline font-bold">
+          [< ESC EXIT]
+        </button>
+        <span class="text-slate-600">|</span>
+        <span class="text-white font-bold">DANDADAN // CH. 172</span>
+      </div>
+
+      <div class="flex items-center gap-4 text-slate-400 text-[11px]">
+        <span>MODE: [WEBTOON_STREAM]</span>
+        <span>CACHE: <span class="text-emeraldAccent">[HOT]</span></span>
+        <span>PAGE: <span class="text-cyanAccent font-bold">01</span> / 19</span>
+      </div>
+    </div>
+
+    <!-- Webtoon Viewport with Side HUD markers -->
+    <div class="max-w-[850px] mx-auto py-8 px-2 relative">
+
+      <!-- Simulated Manga Page -->
+      <div class="border border-hudBorder bg-panel rounded p-12 text-center space-y-4 min-h-[600px] flex flex-col justify-center items-center">
+        <div class="text-cyanAccent text-xs">[PAGE_FEED: 01]</div>
+        <div class="text-3xl font-black text-white font-sans">DANDADAN #172</div>
+        <p class="text-slate-400 text-xs max-w-md font-sans">
+          "Hold on tight, Momo! If the cursed subterranean frequency syncs with the radar, the entire district collapses into the nether realm!"
+        </p>
+        <div class="text-[10px] text-slate-600">[CDN STREAM: uploads.mangadex.org/data/...]</div>
+      </div>
+
+      <div class="border border-hudBorder bg-panel rounded p-12 text-center space-y-4 min-h-[600px] flex flex-col justify-center items-center mt-2">
+        <div class="text-cyanAccent text-xs">[PAGE_FEED: 02]</div>
+        <div class="text-3xl font-black text-white font-sans">[SPECTRAL ACCELERATION]</div>
+        <p class="text-slate-400 text-xs max-w-md font-sans">
+          A blinding neon burst illuminates the abandoned Shinto gate as Okarun dashes through dimensional slipstreams.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-16 border-t border-hudBorder text-center font-mono text-xs text-slate-500">
+    <div>SYS: ANIWATCH MANGADEX PROXY NODE // AD-FREE COMPLIANT</div>
+  </footer>
+
+  <script>
+    function toggleView(view) {
+      const catalog = document.getElementById('view-catalog');
+      const reader = document.getElementById('view-reader');
+      const btnCat = document.getElementById('btn-catalog');
+      const btnRead = document.getElementById('btn-reader');
+
+      if (view === 'reader') {
+        catalog.classList.add('hidden');
+        reader.classList.remove('hidden');
+        btnRead.className = "px-2.5 py-1 rounded bg-cyan-500 text-black font-bold hover:bg-cyan-400 transition";
+        btnCat.className = "px-2.5 py-1 rounded bg-slate-800 text-slate-300 font-bold hover:bg-slate-700 transition";
+      } else {
+        reader.classList.add('hidden');
+        catalog.classList.remove('hidden');
+        btnCat.className = "px-2.5 py-1 rounded bg-cyan-500 text-black font-bold hover:bg-cyan-400 transition";
+        btnRead.className = "px-2.5 py-1 rounded bg-slate-800 text-slate-300 font-bold hover:bg-slate-700 transition";
+      }
+    }
+  </script>
+</body>
+</html>
