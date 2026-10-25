@@ -57,3 +57,4 @@ Thumbs.db
 .eslintcache
 *.pem
 direction-approved.md
+design-demos/
