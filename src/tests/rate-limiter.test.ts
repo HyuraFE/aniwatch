@@ -1,15 +1,51 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import https from 'node:https';
+import { Readable } from 'node:stream';
 import { mangadexFetch } from '@/lib/mangadex/client';
 
+function mockHttpsResponse(
+  status: number,
+  body: string,
+  headers: Record<string, string> = {}
+) {
+  return vi.spyOn(https, 'request').mockImplementation(((
+    options: any,
+    callback: any
+  ) => {
+    const resListeners: Record<string, Function[]> = {};
+    const req: any = {
+      on() {
+        return req;
+      },
+      end() {
+        const res: any = new Readable({ read() {} });
+        res.statusCode = status;
+        res.headers = headers;
+        res.setEncoding = () => res;
+        res.on = ((event: string, handler: Function) => {
+          (resListeners[event] ||= []).push(handler);
+          return res;
+        }) as any;
+        callback(res);
+        setTimeout(() => {
+          (resListeners['data'] || []).forEach((h) => h(body));
+          (resListeners['end'] || []).forEach((h) => h());
+        }, 0);
+      },
+      destroy() {},
+    };
+    return req;
+  }) as any);
+}
+
 describe('MangaDex API Client', () => {
-  it('appends query params correctly and calls fetch', async () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('appends query params correctly and returns parsed JSON', async () => {
     const mockData = { result: 'ok', data: [] };
-    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValueOnce(
-      new Response(JSON.stringify(mockData), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    );
+    const spy = mockHttpsResponse(200, JSON.stringify(mockData));
 
     const res = await mangadexFetch<{ result: string }>('/manga', {
       title: 'Dandadan',
@@ -18,12 +54,37 @@ describe('MangaDex API Client', () => {
     });
 
     expect(res.result).toBe('ok');
-    expect(fetchSpy).toHaveBeenCalled();
-    const calledUrl = fetchSpy.mock.calls[0][0] as string;
-    expect(calledUrl).toContain('title=Dandadan');
-    expect(calledUrl).toContain('limit=10');
-    expect(calledUrl).toContain('includes%5B%5D=cover_art');
+    expect(spy).toHaveBeenCalled();
 
-    fetchSpy.mockRestore();
+    const options = spy.mock.calls[0][0] as https.RequestOptions;
+    const path = String(options.path);
+    expect(path).toContain('title=Dandadan');
+    expect(path).toContain('limit=10');
+    expect(path).toContain('includes%5B%5D=cover_art');
+    expect(options.headers).toMatchObject({
+      'User-Agent': 'aniwatch/1.0 (https://github.com/aniwatch)',
+      Accept: 'application/json',
+    });
+  });
+
+  it('routes api.mangadex.org through a custom agent with DNS lookup override', async () => {
+    const spy = mockHttpsResponse(200, JSON.stringify({ result: 'ok' }));
+
+    await mangadexFetch('/manga', { limit: 1 });
+
+    const options = spy.mock.calls[0][0] as any;
+    expect(options.hostname).toBe('api.mangadex.org');
+    // The agent carries the DNS lookup that bypasses ISP poisoning
+    const agent = options.agent as any;
+    expect(agent).toBeDefined();
+    expect(typeof agent.options.lookup).toBe('function');
+  });
+
+  it('throws a descriptive error on non-2xx responses', async () => {
+    mockHttpsResponse(404, 'not found', { 'x-request-id': 'req-123' });
+
+    await expect(mangadexFetch('/manga/missing')).rejects.toThrow(
+      /MangaDex API error 404/
+    );
   });
 });
