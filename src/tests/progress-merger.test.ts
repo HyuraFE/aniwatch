@@ -13,6 +13,7 @@ describe('Progress reconciliation', () => {
     ];
     const guestRecords = {
       'ch-1': {
+        chapterId: 'ch-1',
         mangaId: 'm-1',
         lastPage: 12,
         updatedAt: '2026-01-01T12:00:00Z',
@@ -33,6 +34,7 @@ describe('Progress reconciliation', () => {
     ];
     const guestRecords = {
       'ch-1': {
+        chapterId: 'ch-1',
         mangaId: 'm-1',
         lastPage: 10,
         updatedAt: '2026-01-01T12:00:00Z',
@@ -46,6 +48,7 @@ describe('Progress reconciliation', () => {
     const serverRecords: any[] = [];
     const guestRecords = {
       'ch-2': {
+        chapterId: 'ch-2',
         mangaId: 'm-1',
         lastPage: 1,
         updatedAt: '2026-01-01T12:00:00Z',
@@ -79,6 +82,7 @@ describe('Progress reconciliation', () => {
     ];
     const guestRecords = {
       'ch-1': {
+        chapterId: 'ch-1',
         mangaId: 'm-1',
         lastPage: 12,
         updatedAt: '2026-01-01T12:00:00Z',
