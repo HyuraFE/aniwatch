@@ -1,3 +1,6 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 const LANGUAGE_NAMES: Record<string, string> = {
@@ -25,15 +28,40 @@ interface LanguageSelectorProps {
   mangaId: string;
   availableLanguages: string[];
   activeLanguage: string;
-  chapterCounts?: Record<string, number>;
+  initialCounts?: Record<string, number>;
 }
 
 export function LanguageSelector({
   mangaId,
   availableLanguages,
   activeLanguage,
-  chapterCounts = {},
+  initialCounts = {},
 }: LanguageSelectorProps) {
+  const [counts, setCounts] = useState<Record<string, number>>(initialCounts);
+
+  // Fill in missing counts in the background so the page itself stays fast
+  useEffect(() => {
+    const missing = availableLanguages.filter(
+      (code) => typeof counts[code] !== 'number'
+    );
+    if (missing.length === 0) return;
+
+    const controller = new AbortController();
+
+    fetch(`/api/manga/${mangaId}/counts`, { signal: controller.signal })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.counts) {
+          setCounts((prev) => ({ ...prev, ...data.counts }));
+        }
+      })
+      .catch(() => {
+        // Counts stay blank; the pills remain usable.
+      });
+
+    return () => controller.abort();
+  }, [mangaId, availableLanguages, counts]);
+
   if (!availableLanguages || availableLanguages.length === 0) {
     return null;
   }
@@ -53,7 +81,7 @@ export function LanguageSelector({
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-meta text-xs">
         {availableLanguages.map((code) => {
           const isActive = code.toLowerCase() === activeLanguage.toLowerCase();
-          const count = chapterCounts[code];
+          const count = counts[code];
 
           return (
             <Link
@@ -68,7 +96,7 @@ export function LanguageSelector({
               <span>
                 {code.toUpperCase()} / {getLanguageLabel(code)}
               </span>
-              {typeof count === 'number' && (
+              {typeof count === 'number' ? (
                 <span
                   className={`text-[11px] ${
                     isActive ? 'text-vermilion font-bold' : 'text-muted'
@@ -76,6 +104,8 @@ export function LanguageSelector({
                 >
                   {count.toLocaleString()} ch
                 </span>
+              ) : (
+                <span className="text-[11px] text-zinc-600">···</span>
               )}
             </Link>
           );

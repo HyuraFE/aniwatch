@@ -48,7 +48,13 @@ export function getPreferredDescription(desc: LocalizedString): string {
 }
 
 /**
- * Generates official MangaDex cover image URLs
+ * Generates MangaDex cover image URLs.
+ *
+ * Images are routed through /api/image-proxy because MangaDex's CDN hostname
+ * is blocked at the DNS/TLS layer by some ISPs (notably Indonesian providers
+ * running Internet Positif). The browser cannot reach uploads.mangadex.org
+ * directly, so the app server fetches and streams it instead.
+ *
  * @param mangaId Manga UUID
  * @param coverFileName Cover art file name from relationship attributes
  * @param size '256' for grid cards, '512' for details, or original
@@ -60,7 +66,6 @@ export function getCoverUrl(
 ): string {
   if (!coverFileName) return '';
   const base = `https://uploads.mangadex.org/covers/${mangaId}/${coverFileName}`;
-  if (size === '256') return `${base}.256.jpg`;
-  if (size === '512') return `${base}.512.jpg`;
-  return base;
+  const sized = size === '256' ? `${base}.256.jpg` : size === '512' ? `${base}.512.jpg` : base;
+  return `/api/image-proxy?url=${encodeURIComponent(sized)}`;
 }

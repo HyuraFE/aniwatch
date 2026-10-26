@@ -28,14 +28,14 @@ describe('MangaDex helpers', () => {
     expect(getPreferredDescription({})).toBe('');
   });
 
-  it('generates MangaDex cover URLs with size qualifier', () => {
+  it('generates MangaDex cover URLs routed through image-proxy with size qualifier', () => {
     const url = getCoverUrl('manga-123', 'cover-abc.jpg', '512');
     expect(url).toBe(
-      'https://uploads.mangadex.org/covers/manga-123/cover-abc.jpg.512.jpg'
+      '/api/image-proxy?url=https%3A%2F%2Fuploads.mangadex.org%2Fcovers%2Fmanga-123%2Fcover-abc.jpg.512.jpg'
     );
     const thumbUrl = getCoverUrl('manga-123', 'cover-abc.jpg', '256');
     expect(thumbUrl).toBe(
-      'https://uploads.mangadex.org/covers/manga-123/cover-abc.jpg.256.jpg'
+      '/api/image-proxy?url=https%3A%2F%2Fuploads.mangadex.org%2Fcovers%2Fmanga-123%2Fcover-abc.jpg.256.jpg'
     );
   });
 });

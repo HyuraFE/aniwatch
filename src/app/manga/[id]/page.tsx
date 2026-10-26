@@ -7,7 +7,6 @@ import { ChapterList } from '@/components/chapter-list';
 import {
   getMangaDetail,
   getChapterFeed,
-  getLanguageChapterCount,
 } from '@/lib/mangadex/api';
 
 export const revalidate = 3600;
@@ -31,17 +30,11 @@ export default async function MangaDetailPage({
 
   const activeLanguage = (sp.lang as string) || detail.availableLanguages[0] || 'en';
 
-  // Fetch chapter counts for each available language (parallel, max 12)
-  const chapterCounts: Record<string, number> = {};
-  await Promise.all(
-    detail.availableLanguages.slice(0, 12).map(async (code) => {
-      try {
-        chapterCounts[code] = await getLanguageChapterCount(id, code);
-      } catch {
-        // Leave the count out rather than blocking the page.
-      }
-    })
-  );
+  // Chapter counts per language are fetched lazily by /api/manga/[id]/counts.
+  // Doing them inline would fire up to 12 aggregate requests and blow past the
+  // serverless function timeout, so the page renders with whatever counts are
+  // already cached in Postgres and the client fills the rest in.
+  const chapterCounts: Record<string, number> = detail.chapterCounts || {};
 
   const feed = await getChapterFeed(id, activeLanguage, 0).catch(() => ({
     chapters: [],
@@ -147,7 +140,7 @@ export default async function MangaDetailPage({
                 mangaId={id}
                 availableLanguages={detail.availableLanguages}
                 activeLanguage={activeLanguage}
-                chapterCounts={chapterCounts}
+                initialCounts={chapterCounts}
               />
             </div>
 

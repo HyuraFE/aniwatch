@@ -19,12 +19,17 @@ export default async function ReaderPage({
   const { id: mangaId, chapterId } = await params;
 
   // 1. Fetch chapter from DB or MangaDex
-  let chapter = await db
-    .select()
-    .from(chapters)
-    .where(eq(chapters.id, chapterId))
-    .limit(1)
-    .then((r) => r[0]);
+  let chapter: (typeof chapters.$inferSelect) | undefined;
+  try {
+    chapter = await db
+      .select()
+      .from(chapters)
+      .where(eq(chapters.id, chapterId))
+      .limit(1)
+      .then((r) => r[0]);
+  } catch {
+    // DB unreachable — fall through to MangaDex live fetch
+  }
 
   if (!chapter) {
     try {
@@ -58,15 +63,22 @@ export default async function ReaderPage({
   }
 
   // 2. Fetch manga title for header
-  const mangaRow = await db
-    .select()
-    .from(manga)
-    .where(eq(manga.id, mangaId))
-    .limit(1)
-    .then((r) => r[0]);
-
-  const mangaTitle = mangaRow?.title || 'Manga';
-  const isJapanese = mangaRow?.originalLanguage === 'ja';
+  let mangaTitle = 'Manga';
+  let isJapanese = true;
+  try {
+    const mangaRow = await db
+      .select()
+      .from(manga)
+      .where(eq(manga.id, mangaId))
+      .limit(1)
+      .then((r) => r[0]);
+    if (mangaRow) {
+      mangaTitle = mangaRow.title;
+      isJapanese = mangaRow.originalLanguage === 'ja';
+    }
+  } catch {
+    // Non-fatal
+  }
 
   // 3. Fetch At-Home server image filenames
   let atHome: MangaDexAtHomeResponse;

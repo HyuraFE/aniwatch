@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { buildPageUrl } from '@/lib/mangadex/reader';
 
 describe('At-Home page URL generator', () => {
-  it('constructs correct high-quality and data-saver image URLs', () => {
+  it('constructs correct high-quality and data-saver image URLs routed through image-proxy', () => {
     const baseUrl = 'https://uploads.mangadex.org';
     const hash = 'abc123hash';
     const filename = '1-x.jpg';
@@ -11,10 +11,10 @@ describe('At-Home page URL generator', () => {
     const saverUrl = buildPageUrl(baseUrl, hash, filename, 'saver');
 
     expect(fullUrl).toBe(
-      'https://uploads.mangadex.org/data/abc123hash/1-x.jpg'
+      '/api/image-proxy?url=https%3A%2F%2Fuploads.mangadex.org%2Fdata%2Fabc123hash%2F1-x.jpg'
     );
     expect(saverUrl).toBe(
-      'https://uploads.mangadex.org/data-saver/abc123hash/1-x.jpg'
+      '/api/image-proxy?url=https%3A%2F%2Fuploads.mangadex.org%2Fdata-saver%2Fabc123hash%2F1-x.jpg'
     );
   });
 
