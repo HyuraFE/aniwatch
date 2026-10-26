@@ -1,6 +1,6 @@
 import pLimit from 'p-limit';
 import https from 'node:https';
-import { lookup as dnsLookup } from 'node:dns';
+import { lookup as dnsLookup, type LookupAddress } from 'node:dns';
 
 const BASE_URL = 'https://api.mangadex.org';
 const USER_AGENT = 'aniwatch/1.0 (https://github.com/aniwatch)';
@@ -65,7 +65,7 @@ function mangadexLookup(
   options: any,
   callback: (
     err: NodeJS.ErrnoException | null,
-    address: string | dns.LookupAddress[],
+    address: string | LookupAddress[],
     family?: number
   ) => void
 ): void {
@@ -157,8 +157,11 @@ export async function mangadexFetch<T>(
     for (const [key, value] of Object.entries(params)) {
       if (value === undefined || value === null) continue;
       if (Array.isArray(value)) {
+        // Keys that already end in [] are array params (MangaDex convention);
+        // appending another [] would produce "includes[][]" and a 400.
+        const paramName = key.endsWith('[]') ? key : `${key}[]`;
         for (const item of value) {
-          url.searchParams.append(`${key}[]`, String(item));
+          url.searchParams.append(paramName, String(item));
         }
       } else {
         url.searchParams.set(key, String(value));

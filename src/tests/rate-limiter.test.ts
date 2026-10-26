@@ -87,4 +87,25 @@ describe('MangaDex API Client', () => {
       /MangaDex API error 404/
     );
   });
+
+  it('does not double-append [] to keys that already end in []', async () => {
+    const spy = mockHttpsResponse(200, JSON.stringify({ result: 'ok' }));
+
+    await mangadexFetch('/manga', { 'includes[]': ['cover_art', 'author'] });
+
+    const path = String((spy.mock.calls[0][0] as https.RequestOptions).path);
+    expect(path).toContain('includes%5B%5D=cover_art');
+    expect(path).toContain('includes%5B%5D=author');
+    expect(path).not.toContain('includes%5B%5D%5B%5D');
+  });
+
+  it('appends [] to plain array keys', async () => {
+    const spy = mockHttpsResponse(200, JSON.stringify({ result: 'ok' }));
+
+    await mangadexFetch('/manga', { tags: ['a', 'b'] });
+
+    const path = String((spy.mock.calls[0][0] as https.RequestOptions).path);
+    expect(path).toContain('tags%5B%5D=a');
+    expect(path).toContain('tags%5B%5D=b');
+  });
 });

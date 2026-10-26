@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { mergeGuestProgress } from '@/lib/progress';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -24,7 +23,11 @@ export default function LoginPage() {
           const raw = window.localStorage.getItem('aniwatch:progress');
           if (raw) {
             const guestMap = JSON.parse(raw);
-            await mergeGuestProgress(session.user.id, guestMap);
+            await fetch('/api/progress/merge', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ guestMap }),
+            });
             window.localStorage.removeItem('aniwatch:progress');
           }
         } catch {
